@@ -20,4 +20,8 @@ interface CartRepositoryInterface
     public function clearCart(int $userId): bool;
 
     public function getCartItemsCount(int $userId): int;
+
+    public function getCartItemById(int $cartItemId): ?CartItem;
+
+    public function getCartItemByUserAndProduct(int $userId, int $productId): ?CartItem;
 }

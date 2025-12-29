@@ -30,16 +30,16 @@ class CartTransformer
 
     public function transformCart(int $userId, Collection $cartItems): CartDTO
     {
-        $items = $cartItems->map(fn(CartItem $item) => $this->transformCartItem($item))->toArray();
+        $items = $cartItems->map(fn (CartItem $item) => $this->transformCartItem($item))->toArray();
         $totalItems = $cartItems->sum('quantity');
-        $totalAmount = array_sum(array_map(fn(CartItemDTO $item) => $item->subtotal, $items));
+        $totalAmount = array_sum(array_map(fn (CartItemDTO $item) => $item->subtotal, $items));
 
         return new CartDTO(
             userId: $userId,
             items: $items,
             totalItems: $totalItems,
             totalAmount: $totalAmount,
-            formattedTotalAmount: '$' . number_format($totalAmount, 2),
+            formattedTotalAmount: '$'.number_format($totalAmount, 2),
         );
     }
 }

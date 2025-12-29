@@ -50,7 +50,7 @@ class ProductController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch products',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -60,22 +60,22 @@ class ProductController extends Controller
         try {
             $product = $this->productService->getProductById($id);
 
-            if (!$product) {
+            if (! $product) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Product not found'
+                    'message' => 'Product not found',
                 ], 404);
             }
 
             return response()->json([
                 'success' => true,
-                'data' => $product
+                'data' => $product,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch product',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -87,13 +87,13 @@ class ProductController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $products
+                'data' => $products,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch featured products',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }

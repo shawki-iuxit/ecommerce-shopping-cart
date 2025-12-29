@@ -33,8 +33,9 @@ class EloquentCartRepository implements CartRepositoryInterface
 
         if ($existingItem) {
             $existingItem->update([
-                'quantity' => $existingItem->quantity + $quantity
+                'quantity' => $existingItem->quantity + $quantity,
             ]);
+
             return $existingItem->fresh();
         }
 
@@ -69,5 +70,15 @@ class EloquentCartRepository implements CartRepositoryInterface
         return $this->model
             ->where('user_id', $userId)
             ->sum('quantity');
+    }
+
+    public function getCartItemById(int $cartItemId): ?CartItem
+    {
+        return $this->model->find($cartItemId);
+    }
+
+    public function getCartItemByUserAndProduct(int $userId, int $productId): ?CartItem
+    {
+        return $this->findCartItem($userId, $productId);
     }
 }

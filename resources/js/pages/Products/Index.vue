@@ -29,15 +29,76 @@
               </button>
             </div>
 
-            <!-- Auth Links -->
-            <div v-if="$page.props.auth?.user" class="flex items-center space-x-2">
-              <span class="text-sm text-gray-600">Hello, {{ $page.props.auth.user.name }}</span>
-              <Link
-                href="/dashboard"
-                class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors text-sm"
+            <!-- User Dropdown -->
+            <div v-if="$page.props.auth?.user" class="relative">
+              <button
+                @click="showUserMenu = !showUserMenu"
+                @blur="hideUserMenuDelayed"
+                class="flex items-center space-x-2 px-3 py-2 text-gray-600 hover:text-gray-900 transition-colors rounded-md"
               >
-                Dashboard
-              </Link>
+                <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center text-sm font-medium text-gray-700">
+                  {{ getInitials($page.props.auth.user.name) }}
+                </div>
+                <span class="text-sm">{{ $page.props.auth.user.name }}</span>
+                <svg class="w-4 h-4 transition-transform" :class="{ 'rotate-180': showUserMenu }" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div
+                v-if="showUserMenu"
+                @mouseenter="clearHideTimeout"
+                @mouseleave="hideUserMenuDelayed"
+                class="absolute right-0 mt-2 w-56 bg-white rounded-md shadow-lg py-1 z-50 border border-gray-200"
+              >
+                <Link
+                  href="/dashboard"
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  @click="showUserMenu = false"
+                >
+                  <svg class="mr-3 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2V7" />
+                  </svg>
+                  Dashboard
+                </Link>
+                <Link
+                  href="/cart"
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  @click="showUserMenu = false"
+                >
+                  <svg class="mr-3 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6H19M7 13v6a1 1 0 001 1h10a1 1 0 001-1v-6M7 13L5.4 5M7 13l1.5 6" />
+                  </svg>
+                  Shopping Cart
+                  <span v-if="cartCount > 0" class="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-0.5">
+                    {{ cartCount > 99 ? '99+' : cartCount }}
+                  </span>
+                </Link>
+                <Link
+                  href="/orders"
+                  class="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                  @click="showUserMenu = false"
+                >
+                  <svg class="mr-3 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                  </svg>
+                  My Orders
+                </Link>
+                <div class="border-t border-gray-100 my-1"></div>
+                <Link
+                  href="/logout"
+                  method="post"
+                  as="button"
+                  class="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                  @click="showUserMenu = false"
+                >
+                  <svg class="mr-3 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                  </svg>
+                  Logout
+                </Link>
+              </div>
             </div>
             <div v-else class="flex items-center space-x-2">
               <Link
@@ -342,8 +403,9 @@
 </template>
 
 <script setup>
-import { Link, router } from '@inertiajs/vue3'
+import { Link, router, usePage } from '@inertiajs/vue3'
 import { ref, reactive, computed, watch, onMounted } from 'vue'
+import { useApi } from '@/composables/useApi.js'
 
 // Simple debounce function
 const debounce = (func, wait) => {
@@ -366,6 +428,17 @@ const selectedCategory = ref(null)
 const searchQuery = ref('')
 const currentPage = ref(1)
 const cartCount = ref(0)
+
+// User dropdown menu
+const showUserMenu = ref(false)
+let hideTimeout = null
+
+// Computed properties
+const page = usePage()
+const isAuthenticated = computed(() => !!page.props.auth?.user)
+
+// API composable
+const { apiRequest } = useApi()
 
 const pagination = reactive({
   currentPage: 1,
@@ -497,15 +570,10 @@ const getCSRFToken = () => {
 
 // Fetch cart count
 const fetchCartCount = async () => {
-  if (!window.Laravel?.auth?.user) return
+  if (!isAuthenticated.value) return
 
   try {
-    const response = await fetch('/api/cart/count', {
-      headers: {
-        'Authorization': `Bearer ${window.Laravel.auth.token}`,
-        'Accept': 'application/json',
-      }
-    })
+    const response = await apiRequest('/api/cart/count')
 
     if (response.ok) {
       const data = await response.json()
@@ -520,21 +588,15 @@ const fetchCartCount = async () => {
 
 // Add to cart handler
 const addToCart = async (product) => {
-  if (!window.Laravel?.auth?.user) {
+  if (!isAuthenticated.value) {
     // Redirect to login if not authenticated
     router.visit('/login')
     return
   }
 
   try {
-    const response = await fetch('/api/cart', {
+    const response = await apiRequest('/api/cart', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${window.Laravel.auth.token}`,
-        'Accept': 'application/json',
-        'X-CSRF-TOKEN': getCSRFToken(),
-      },
       body: JSON.stringify({
         product_id: product.id,
         quantity: 1,
@@ -559,6 +621,29 @@ const addToCart = async (product) => {
 // Go to cart page
 const goToCart = () => {
   router.visit('/cart')
+}
+
+// User dropdown menu functions
+const hideUserMenuDelayed = () => {
+  hideTimeout = setTimeout(() => {
+    showUserMenu.value = false
+  }, 150)
+}
+
+const clearHideTimeout = () => {
+  if (hideTimeout) {
+    clearTimeout(hideTimeout)
+    hideTimeout = null
+  }
+}
+
+// Get user initials
+const getInitials = (name) => {
+  if (!name) return 'U'
+  return name.split(' ')
+    .map(word => word.charAt(0).toUpperCase())
+    .slice(0, 2)
+    .join('')
 }
 
 // Notification system

@@ -25,6 +25,14 @@
             >
               Dashboard
             </Link>
+            <Link
+              href="/logout"
+              method="post"
+              as="button"
+              class="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors text-sm"
+            >
+              Logout
+            </Link>
           </div>
         </div>
       </div>
@@ -234,13 +242,21 @@
 </template>
 
 <script setup>
-import { Link, router } from '@inertiajs/vue3'
-import { ref, onMounted } from 'vue'
+import { Link, router, usePage } from '@inertiajs/vue3'
+import { ref, computed, onMounted } from 'vue'
+import { useApi } from '@/composables/useApi.js'
 
 const loading = ref(false)
 const error = ref(null)
 const cart = ref(null)
 const notifications = ref([])
+
+// Computed properties
+const page = usePage()
+const isAuthenticated = computed(() => !!page.props.auth?.user)
+
+// API composable
+const { apiRequest } = useApi()
 
 // Get CSRF token for API requests
 const getCSRFToken = () => {
@@ -254,12 +270,7 @@ const fetchCart = async () => {
     loading.value = true
     error.value = null
 
-    const response = await fetch('/api/cart', {
-      headers: {
-        'Authorization': `Bearer ${window.Laravel?.auth?.token}`,
-        'Accept': 'application/json',
-      }
-    })
+    const response = await apiRequest('/api/cart')
 
     const data = await response.json()
 
@@ -286,14 +297,8 @@ const fetchCart = async () => {
 // Update item quantity
 const updateQuantity = async (itemId, quantity) => {
   try {
-    const response = await fetch(`/api/cart/${itemId}`, {
+    const response = await apiRequest(`/api/cart/${itemId}`, {
       method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${window.Laravel?.auth?.token}`,
-        'Accept': 'application/json',
-        'X-CSRF-TOKEN': getCSRFToken(),
-      },
       body: JSON.stringify({ quantity: parseInt(quantity) })
     })
 
@@ -313,13 +318,8 @@ const updateQuantity = async (itemId, quantity) => {
 // Remove item from cart
 const removeItem = async (itemId) => {
   try {
-    const response = await fetch(`/api/cart/${itemId}`, {
+    const response = await apiRequest(`/api/cart/${itemId}`, {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${window.Laravel?.auth?.token}`,
-        'Accept': 'application/json',
-        'X-CSRF-TOKEN': getCSRFToken(),
-      }
     })
 
     const data = await response.json()
@@ -342,13 +342,8 @@ const clearCart = async () => {
   }
 
   try {
-    const response = await fetch('/api/cart', {
+    const response = await apiRequest('/api/cart', {
       method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${window.Laravel?.auth?.token}`,
-        'Accept': 'application/json',
-        'X-CSRF-TOKEN': getCSRFToken(),
-      }
     })
 
     const data = await response.json()
@@ -366,7 +361,11 @@ const clearCart = async () => {
 
 // Proceed to checkout
 const proceedToCheckout = () => {
-  showNotification('Checkout feature coming soon!', 'info')
+  if (!cart.value || cart.value.items.length === 0) {
+    showNotification('Your cart is empty', 'error')
+    return
+  }
+  router.visit('/checkout')
 }
 
 // Handle image errors
@@ -399,7 +398,7 @@ const removeNotification = (id) => {
 
 // Check authentication and redirect if needed
 onMounted(() => {
-  if (!window.Laravel?.auth?.user) {
+  if (!isAuthenticated.value) {
     router.visit('/login')
     return
   }

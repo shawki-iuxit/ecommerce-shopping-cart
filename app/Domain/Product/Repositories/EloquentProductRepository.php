@@ -54,8 +54,8 @@ class EloquentProductRepository implements ProductRepositoryInterface
             ->where('is_active', true)
             ->where(function ($q) use ($query) {
                 $q->where('name', 'LIKE', "%{$query}%")
-                  ->orWhere('description', 'LIKE', "%{$query}%")
-                  ->orWhere('sku', 'LIKE', "%{$query}%");
+                    ->orWhere('description', 'LIKE', "%{$query}%")
+                    ->orWhere('sku', 'LIKE', "%{$query}%");
             })
             ->latest()
             ->paginate($perPage);

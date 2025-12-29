@@ -16,7 +16,7 @@ class ProductTransformer
             sku: $product->sku,
             description: $product->description ?? '',
             price: (float) $product->price,
-            formattedPrice: '$' . number_format($product->price, 2),
+            formattedPrice: '$'.number_format($product->price, 2),
             stockQuantity: $product->stock_quantity,
             imageUrl: $product->image_url,
             isActive: $product->is_active,
@@ -31,7 +31,7 @@ class ProductTransformer
     public function transformCollection(iterable $products): array
     {
         $result = [];
-        
+
         foreach ($products as $product) {
             $result[] = $this->transformToListDTO($product);
         }

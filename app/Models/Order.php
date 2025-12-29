@@ -19,9 +19,9 @@ class Order extends Model
             'total_amount' => 'decimal:2',
             'tax_amount' => 'decimal:2',
             'shipping_amount' => 'decimal:2',
-            'payment_details' => 'array',
-            'shipped_at' => 'datetime',
-            'delivered_at' => 'datetime',
+            'shipping_address' => 'array',
+            'billing_address' => 'array',
+            'placed_at' => 'datetime',
         ];
     }
 
@@ -34,12 +34,7 @@ class Order extends Model
         'shipping_amount',
         'shipping_address',
         'billing_address',
-        'payment_method',
-        'payment_status',
-        'payment_details',
-        'shipped_at',
-        'delivered_at',
-        'notes',
+        'placed_at',
     ];
 
     public function user(): BelongsTo

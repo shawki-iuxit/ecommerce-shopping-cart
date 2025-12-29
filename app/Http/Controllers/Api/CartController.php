@@ -11,9 +11,7 @@ class CartController extends Controller
 {
     public function __construct(
         private CartService $cartService
-    ) {
-        $this->middleware('auth:sanctum');
-    }
+    ) {}
 
     public function index(Request $request): JsonResponse
     {
@@ -22,13 +20,13 @@ class CartController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $cart
+                'data' => $cart,
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch cart',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -47,24 +45,23 @@ class CartController extends Controller
                 $request->get('quantity', 1)
             );
 
-            if (!$success) {
+            if (! $success) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to add item to cart'
+                    'message' => 'Failed to add item to cart',
                 ], 400);
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Item added to cart successfully',
-                'cart_count' => $this->cartService->getCartItemsCount($request->user()->id)
+                'cart_count' => $this->cartService->getCartItemsCount($request->user()->id),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to add item to cart',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+                'message' => $e->getMessage(),
+            ], 400);
         }
     }
 
@@ -81,24 +78,23 @@ class CartController extends Controller
                 $request->quantity
             );
 
-            if (!$success) {
+            if (! $success) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to update cart item'
+                    'message' => 'Failed to update cart item',
                 ], 400);
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Cart updated successfully',
-                'cart_count' => $this->cartService->getCartItemsCount($request->user()->id)
+                'cart_count' => $this->cartService->getCartItemsCount($request->user()->id),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update cart item',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
-            ], 500);
+                'message' => $e->getMessage(),
+            ], 400);
         }
     }
 
@@ -107,23 +103,23 @@ class CartController extends Controller
         try {
             $success = $this->cartService->removeItem($request->user()->id, $id);
 
-            if (!$success) {
+            if (! $success) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to remove cart item'
+                    'message' => 'Failed to remove cart item',
                 ], 400);
             }
 
             return response()->json([
                 'success' => true,
                 'message' => 'Item removed from cart',
-                'cart_count' => $this->cartService->getCartItemsCount($request->user()->id)
+                'cart_count' => $this->cartService->getCartItemsCount($request->user()->id),
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to remove cart item',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -135,13 +131,13 @@ class CartController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Cart cleared successfully'
+                'message' => 'Cart cleared successfully',
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to clear cart',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }
@@ -153,13 +149,13 @@ class CartController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => ['count' => $count]
+                'data' => ['count' => $count],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch cart count',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error'
+                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
             ], 500);
         }
     }

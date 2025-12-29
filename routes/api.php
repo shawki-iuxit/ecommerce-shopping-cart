@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\OrderController;
 use App\Http\Controllers\Api\ProductController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -17,11 +18,18 @@ Route::prefix('products')->group(function () {
 });
 
 // Cart API routes (requires authentication)
-Route::prefix('cart')->group(function () {
+Route::prefix('cart')->middleware(['auth:sanctum'])->group(function () {
     Route::get('/', [CartController::class, 'index']);
     Route::get('/count', [CartController::class, 'count']);
     Route::post('/', [CartController::class, 'store']);
     Route::put('/{id}', [CartController::class, 'update'])->where('id', '[0-9]+');
     Route::delete('/{id}', [CartController::class, 'destroy'])->where('id', '[0-9]+');
     Route::delete('/', [CartController::class, 'clear']);
+});
+
+// Order API routes (requires authentication)
+Route::prefix('orders')->middleware(['auth:sanctum'])->group(function () {
+    Route::get('/', [OrderController::class, 'index']);
+    Route::post('/', [OrderController::class, 'store']);
+    Route::get('/{id}', [OrderController::class, 'show'])->where('id', '[0-9]+');
 });
