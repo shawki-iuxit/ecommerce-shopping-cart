@@ -19,7 +19,7 @@ class LowStockNotificationTest extends TestCase
     public function test_low_stock_notification_job_is_dispatched_after_order(): void
     {
         Queue::fake();
-        
+
         // Create admin user
         $admin = User::factory()->create([
             'email' => 'admin@example.com',
@@ -77,7 +77,7 @@ class LowStockNotificationTest extends TestCase
 
         // Assert email was sent
         Mail::assertSent(LowStockNotification::class, function ($mail) use ($admin, $product) {
-            return $mail->hasTo($admin->email) && 
+            return $mail->hasTo($admin->email) &&
                    $mail->product->id === $product->id;
         });
     }

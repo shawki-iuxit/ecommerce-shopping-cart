@@ -63,7 +63,7 @@ class OrderService
 
                 // Update product inventory
                 $cartItem->product->decrement('stock_quantity', $cartItem->quantity);
-                
+
                 // Check if stock is low and dispatch notification job
                 $updatedProduct = $cartItem->product->fresh();
                 if ($updatedProduct->stock_quantity <= self::LOW_STOCK_THRESHOLD) {

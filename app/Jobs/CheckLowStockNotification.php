@@ -32,7 +32,7 @@ class CheckLowStockNotification implements ShouldQueue
         if ($this->product->stock_quantity <= self::LOW_STOCK_THRESHOLD) {
             // Find admin user
             $admin = User::where('email', 'shawki.course@gmail.com')->first();
-            
+
             if ($admin) {
                 Mail::to($admin)->send(new LowStockNotification($this->product));
             }
