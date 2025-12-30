@@ -42,7 +42,6 @@ class EloquentProductRepository implements ProductRepositoryInterface
         return $this->model
             ->with(['category'])
             ->where('is_active', true)
-            ->where('stock_quantity', '>', 0)
             ->latest()
             ->paginate($perPage);
     }

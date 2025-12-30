@@ -2,6 +2,7 @@
 
 namespace App\Domain\Order\Services;
 
+use App\Jobs\CheckLowStockNotification;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -11,6 +12,8 @@ use Illuminate\Support\Str;
 
 class OrderService
 {
+    const LOW_STOCK_THRESHOLD = 5;
+
     public function placeOrder(User $user, array $shippingAddress, array $billingAddress): Order
     {
         return DB::transaction(function () use ($user, $shippingAddress, $billingAddress) {
@@ -60,6 +63,12 @@ class OrderService
 
                 // Update product inventory
                 $cartItem->product->decrement('stock_quantity', $cartItem->quantity);
+                
+                // Check if stock is low and dispatch notification job
+                $updatedProduct = $cartItem->product->fresh();
+                if ($updatedProduct->stock_quantity <= self::LOW_STOCK_THRESHOLD) {
+                    CheckLowStockNotification::dispatch($updatedProduct);
+                }
             }
 
             // Clear cart
