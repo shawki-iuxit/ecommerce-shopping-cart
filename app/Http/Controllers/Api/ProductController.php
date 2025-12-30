@@ -79,22 +79,4 @@ class ProductController extends Controller
             ], 500);
         }
     }
-
-    public function featured(): JsonResponse
-    {
-        try {
-            $products = $this->productService->getFeaturedProducts();
-
-            return response()->json([
-                'success' => true,
-                'data' => $products,
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to fetch featured products',
-                'error' => config('app.debug') ? $e->getMessage() : 'Internal server error',
-            ], 500);
-        }
-    }
 }

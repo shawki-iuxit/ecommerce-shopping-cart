@@ -13,8 +13,6 @@ Route::get('/user', function (Request $request) {
 // Product API routes
 Route::prefix('products')->group(function () {
     Route::get('/', [ProductController::class, 'index']);
-    Route::get('/featured', [ProductController::class, 'featured']);
-    Route::get('/{id}', [ProductController::class, 'show'])->where('id', '[0-9]+');
 });
 
 // Cart API routes (requires authentication)
