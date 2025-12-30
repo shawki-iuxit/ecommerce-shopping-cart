@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Mail;
 
 class SendDailySalesReport implements ShouldQueue
 {
-    use Queueable, Dispatchable;
+    use Dispatchable, Queueable;
 
     /**
      * Create a new job instance.
@@ -29,7 +29,7 @@ class SendDailySalesReport implements ShouldQueue
      */
     public function handle(): void
     {
-        
+
         $reportDate = $this->date ? Carbon::parse($this->date) : Carbon::today();
         $reportDateString = $reportDate->format('F j, Y');
 
@@ -50,7 +50,7 @@ class SendDailySalesReport implements ShouldQueue
         } else {
             Log::warning('Admin user not found');
         }
-        
+
         Log::info('SendDailySalesReport job completed');
     }
 
@@ -108,7 +108,7 @@ class SendDailySalesReport implements ShouldQueue
             'orders' => $ordersData,
             'products' => array_values($productsSold),
             'total_revenue' => $totalRevenue,
-            'total_items_sold' => $totalItemsSold
+            'total_items_sold' => $totalItemsSold,
         ];
     }
 }
