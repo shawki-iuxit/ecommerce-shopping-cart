@@ -124,7 +124,7 @@ php artisan test
 
 ---
 
-## 💡 **Technical Interview Summary**
+## 💡 **Summary**
 
 **"This application demonstrates my ability to architect scalable web applications using modern frameworks and design patterns. The backend showcases Domain-Driven Design with clean separation between business logic, data access, and presentation layers. The frontend leverages Vue 3's Composition API with Inertia.js for seamless user experience. Key technical strengths include type safety, performance optimization, and production-ready error handling."**
 
